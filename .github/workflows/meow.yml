@@ -16,6 +16,7 @@ jobs:
         id: find
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           NUMBER=$(gh issue list --state all --limit 100 --json number,title | jq -r '[.[] | select(.title == "meow")] | .[0].number // empty')
           echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
@@ -24,10 +25,12 @@ jobs:
         if: steps.find.outputs.number != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: gh issue comment "${{ steps.find.outputs.number }}" --body "meow"
 
       - name: create the meow
         if: steps.find.outputs.number == ''
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: gh issue create --title "meow" --body "meow"
