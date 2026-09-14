@@ -1,0 +1,33 @@
+name: meow
+
+on:
+  schedule:
+    - cron: "0 5 1 * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  meow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: find the meow
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NUMBER=$(gh issue list --state all --limit 100 --json number,title | jq -r '[.[] | select(.title == "meow")] | .[0].number // empty')
+          echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: comment meow
+        if: steps.find.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment "${{ steps.find.outputs.number }}" --body "meow"
+
+      - name: create the meow
+        if: steps.find.outputs.number == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --title "meow" --body "meow"
